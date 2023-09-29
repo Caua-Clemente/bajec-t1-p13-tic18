@@ -1,144 +1,130 @@
 #include<iostream>
 #include<string>
 #include<ctime>
+#include<vector>
 
 using namespace std;
 
+int assento_max = 40;
+
 struct assento {
     int numero;
-    int idade = -1;
+    int idade;
     string cpf;
     string nome;
 };
 
 struct viagem {
-    assento assentos[40];
-    int qtde = 0;
-    string hora;
+    vector<assento> assentos;
 };
 
-struct dia {
+struct Dia {
     viagem viagens[10];
+    string data;
+    int dia, mes, ano;
 };
 
-struct mes {
-    dia dias[31];
-};
-
-struct ano {
-    mes meses[12];
-};
-
-void comprar_passagem(ano _ano);
-void total_viagem(ano _ano);
-void total_mes(ano _ano);
-void pegar_nome(ano _ano);
-void horario_mais_rentavel(ano _ano);
-void idade_media(ano _ano);
+void comprar_passagem(vector<Dia>& dias);
+void total_viagem(vector<Dia>& dias);
+void total_mes(vector<Dia>& dias);
+void pegar_nome(vector<Dia>& dias);
+void horario_mais_rentavel(vector<Dia>& dias);
+void idade_media(vector<Dia>& dias);
 string horario(int _index);
 bool verificar_data(string data);
 
 int main() 
 {
+    vector<Dia> Dias;
+    Dias.resize(0);
     for(int acao = 1; acao != 0;)
     {
-        ano Ano;
-        cout << "Escolha uma opcao:" << endl <<
+        cout << 
         "1 - Comprar passagem" << endl <<
         "2 - Ver o total arrecadado em uma viagem" << endl <<
         "3 - Ver o total arrecadado em um mes" << endl <<
         "4 - Ver nome de um passageiro em uma poltrona" << endl <<
         "5 - Qual o horario mais rentavel" << endl <<
         "6 - Qual a media de idade dos passageiros" << endl <<
-        "0 - Sair" << endl;
-        cin >> acao;
+        "0 - Sair" << endl <<
+        "Escolha uma opcao:";
+        std::cin >> acao;
 
+/*
         if(acao == 1)
-            {comprar_passagem(Ano);}
+            {comprar_passagem(Dias);}
         else if(acao == 2)
-            {total_viagem(Ano);}
+            {total_viagem(Dias);}
         else if(acao == 3)
-                    {total_mes(Ano);}
+                    {total_mes(Dias);}
         else if(acao == 4)
-                    {pegar_nome(Ano);}
+                    {pegar_nome(Dias);}
         else if(acao == 5)
-                    {horario_mais_rentavel(Ano);}
+                    {horario_mais_rentavel(Dias);}
         else if(acao == 6)
-                    {idade_media(Ano);}                    
+                    {idade_media(Dias);}                    
+//*/
     }
 
     cout << "Operacao finalizada" << endl;
     return 0;
 }
 
-
-//void comprar_passagem();
-//void total_viagem(viagem _viagem);
-//void total_mes(mes _mes[]);
-
-void pegar_nome(ano _ano)
+void comprar_passagem(vector<Dia>& dias)
 {
     string data;
-    int hora;
-    int numero_poltrona;
-    string resposta;
-    bool origem;
-    cout << "Insira a data da viagem (dd/mm/aaaa): ";
-    cin >> data;
+    int horario;
+    char ida_volta;
+    int lugar;
 
+    cout << "Insira local de partida (r = RJ / s = SP)";
+    cin >> ida_volta;
+
+    cout << "Digite a data da viagem (dd/mm/aaaa): ";
+    cin >> data;
+    
     while(!verificar_data(data))
     {
-        cout << "Data invalida, insira novamente (dd/mm/aaaa): ";
+        cout << "Data invalida, insira outra (dd/mm/aaaa): ";
         cin >> data;
     }
 
-    cout << "Insira o horario do onibus (1-5): ";
-    cin >> hora;
+    cout << "----- Horarios -----" << endl <<
+    "1 - 07:30" << endl << 
+    "2 - 10:30" << endl << 
+    "3 - 13:30" << endl << 
+    "4 - 16:30" << endl << 
+    "5 - 19:30" << endl <<
+    "Insira o numero do horario de partida (1-5): ";
+    cin >> horario;
 
-    cout << "Qual a cidade de partida do onibus (r = Rio de Janeiro / s = Sao Paulo): ";
-    cin >> resposta;
+    while(horario < 1 || horario > 5)
+    {
+        cout << "Horario invalido, insira apenas numeros de 1 a 5: ";
+        cin >> horario;
+    }
 
-    if(resposta == "r")
-        {origem = 0;}
-    else
-        {origem = 1;}
 
-    cout << "Insira o numero da poltrona (1-40): ";
-    cin >> numero_poltrona;
-
-    
-    int im, id, index;
-    id = stoi(data.substr(0,2));
-    im = stoi(data.substr(3,2));
-
-    index = (hora-1)*2 + origem;
-    string nome_passageiro = _ano.meses[im].dias[id].viagens[index].assentos[numero_poltrona].nome;
-    if(nome_passageiro == "")
-    {cout << "Nao ha nenhum passageiro nesse assento";}
-    else
-    {cout << "O nome do passageiro e: " << nome_passageiro << endl;}
 }
 
-void horario_mais_rentavel(ano _ano)
+void horario_mais_rentavel(vector<Dia>& dias)
 {
-    int index;
-    int maior = 0;
-    int auxnum;
-    for(int m = 0; m < 12; m++)
+    int index = 0;
+    int qtde[5] = {0};
+
+    for(int i = 0; i < dias.size(); i++)
     {
-        auxnum = 0;
-        for(int d = 0; d < 31; d++)
+        for(int j = 0; j < 10; j++)
         {
-            for(int v = 0; v < 10; v++)
-            {
-                auxnum += _ano.meses[m].dias[d].viagens[v].qtde;
-            }
+            int val = dias[i].viagens[j].assentos.size();
+            qtde[(i+1)/2] += val;
         }
-        if(maior < auxnum)
-        {
-            maior = auxnum;
-            index = m;
-        }
+    }
+
+    for(int i = 0; i < 5-1; i++)
+    {
+        if(qtde[i] < qtde[i+1])
+        {index = i+1;}
     }
 
     cout << "O horario mais rentavel e ";
@@ -154,31 +140,9 @@ void horario_mais_rentavel(ano _ano)
     else if(index == 9) {cout << "Outubro";}
     else if(index == 10) {cout << "Novembro";}
     else {cout << "Dezembro";}
-}
-
-void idade_media(ano _ano)
-{
-    int total = 0;
-    int qtde = 0;
-    for(int m = 0; m < 12; m++)
-    {
-        for(int d = 0; d < 31; d++)
-        {
-            for(int v = 0; v < 10; v++)
-            {
-                for(int as = 0; as < 40; as++)
-                {
-                    if(_ano.meses[m].dias[d].viagens[v].assentos[as].idade >= 0)
-                    {
-                        total += _ano.meses[m].dias[d].viagens[v].assentos[as].idade;
-                        qtde++;
-                    }
-                }
-            }
-        }
-    }
-
-    cout << "A idade media dos passageiros e " << (total/qtde) << endl;
+    
+    cout << ", com " << qtde[index] << " passagens vendidas, um total de R$" <<
+    qtde[index] * 80 << endl << endl;
 }
 
 string horario(int index)
